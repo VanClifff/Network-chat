@@ -1,4 +1,4 @@
-package HttpServer;
+package Old.HttpServer;
 
 
 import java.io.BufferedReader;
@@ -9,12 +9,12 @@ import java.net.Socket;
 
 public class SocketProcessor implements Runnable {
 
-    private Socket s;
+    private Socket socket;
     private InputStream is;
     private OutputStream os;
 
     public SocketProcessor(Socket s) throws Throwable {
-        this.s = s;
+        this.socket = s;
         this.is = s.getInputStream();
         this.os = s.getOutputStream();
     }
@@ -22,12 +22,12 @@ public class SocketProcessor implements Runnable {
     public void run() {
         try {
             readInputHeaders();
-            writeResponse("<html><body><h1>Hello world</h1></body></html>");
+            writeResponse("<h1>Hello world</h1>");
         } catch (Throwable t) {
             /*do nothing*/
         } finally {
             try {
-                s.close();
+                socket.close();
             } catch (Throwable t) {
                 /*do nothing*/
             }
@@ -36,12 +36,13 @@ public class SocketProcessor implements Runnable {
     }
 
     public void writeResponse(String s) throws Throwable {
+        String tags = "<html><body></body></html>";
         String response = "HTTP/1.1 200 OK\r\n" +
-                "Server: YarServer/2009-09-09\r\n" +
+                "server.Server: YarServer/2009-09-09\r\n" +
                 "Content-Type: text/html\r\n" +
-                "Content-Length: " + s.length() + "\r\n" +
+                "Content-Length: " + (s.length() + tags.length()) + "\r\n" +
                 "Connection: close\r\n\r\n";
-        String result = response + s;
+        String result = response + "<html><body>" + s + "</body></html>";
         os.write(result.getBytes());
         os.flush();
     }
